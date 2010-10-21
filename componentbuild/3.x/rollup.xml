@@ -22,6 +22,8 @@
                 <echo level="info">Rollup of rollup detected; setting rollup.sub properties.</echo>
                 <subant target="${component.rollup.target}" inheritall="false" >
                     <filelist dir="${buildfile.dir}" files="${component.rollup.modules.buildfiles}" />
+                    <property name="global.build.base" value="${global.build.base}" />
+		            <property name="global.build.component" value="${global.build.component}" />
                     <property name="rollup.sub" value="true" />
                     <property name="rollup.sub.builddir" value="${component.builddir}" />
                     <property name="rollup.sub.component" value="${component}" />
@@ -31,6 +33,8 @@
             <else>
                 <subant target="${component.rollup.target}" inheritall="false" >
                     <filelist dir="${buildfile.dir}" files="${component.rollup.modules.buildfiles}" />
+                    <property name="global.build.base" value="${global.build.base}" />
+            		<property name="global.build.component" value="${global.build.component}" />
                     <property name="rollup" value="true" />
                     <property name="rollup.builddir" value="${component.builddir}" />
                     <property name="rollup.component" value="${component}" />
