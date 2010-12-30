@@ -33,6 +33,7 @@
             <arrayliteral from="component.supersedes" to="component.details.supersedes" key="supersedes" />
             <arrayliteral from="component.requires" to="component.details.requires" key="requires" />
             <arrayliteral from="component.optional" to="component.details.optional" key="optional" />
+            <arrayliteral from="component.after" to="component.details.after" key="after" />
         	<arrayliteral from="component.lang" to="component.details.lang" key="lang" />
             <if>
                 <isset property="component.skinnable" />
@@ -69,18 +70,20 @@
         </sequential>
     </macrodef>
 
+    <taskdef name="yuicompressor"
+        classname="com.yahoo.platform.yui.compressor.CompressorTask"
+        classpath="${yuicompressor.jar}"/>
+
+    <!-- Maps the legacy yuicompress task into a yuicompressor task. -->
     <macrodef name="yuicompress">
         <attribute name="src" />
         <attribute name="dest" />
         <attribute name="args" />
-
+        <!-- Unused. Type is detected automatically from the @{src} filename. -->
+        <attribute name="type" default="?"/>
+        <!-- If you had to override this, use the type option in args instead. -->
         <sequential>
-            <echo level="info">Running yuicompressor on @{src}</echo>
-            <java jar="${yuicompressor.jar}" fork="true" failonerror="true">
-                <arg line="@{args} -o" />
-                <arg file="@{dest}" />
-                <arg file="@{src}" />
-            </java>
+            <yuicompressor input="@{src}" output="@{dest}" options="@{args}"/>
         </sequential>
     </macrodef>
 
@@ -117,24 +120,52 @@
 
     <macrodef name="jslint">
         <element name="jsfiles" optional="false" />
+
         <sequential>
-            <!-- 
-               Need to find a way to convert fileset to args (script?) to 
-               avoid ' ', which will break for files with ' in them
-               
-               Evaluates to the following java execution line...
-               java -r js.jar jslintconsole.js 'file1.js' 'file2.js' 'file3.js'
-            -->
             <pathconvert pathsep="' '" property="jsfileargs">
                 <jsfiles />
             </pathconvert>
+            <if>
+                <or>
+                    <istrue value="${node.online}"/>
+                    <http url="${node.jslint.url}"/>
+                </or>
+                <then>
+                    <property name="node.online" value="true"/>
+                    <post to="${node.jslint.url}" property="node.jslint.response" failonerror="${lint.failonerror}">
+                        <prop name="files" value="${jsfileargs}"/>
+                        <prop name="failonerror" value="${lint.failonerror}"/>
+                    </post>
+                    <!-- Since Ant doesn't really failonerror for the post task,
+                         handle this ourselves: -->
+                    <if>
+                        <not>
+                            <isset property="node.jslint.response"/>
+                        </not>
+                        <then>
+                            <fail>JSLint failed. To view lint output and continue the build, run ant with -Dlint.failonerror=false.</fail>
+                        </then>
+                    </if>
+                    <!-- Clear property for next run: -->
+                    <var name="node.jslint.response" unset="true"/>
+                </then>
+                <else>
+                    <echo>Using Rhino. Install nodejs to improve jslint speed, or skip with -Dlint.skip=true</echo>
+                    <!-- 
+                       Need to find a way to convert fileset to args (script?) to 
+                       avoid ' ', which will break for files with ' in them
+                       
+                       Evaluates to the following java execution line...
+                       java -r js.jar jslintconsole.js 'file1.js' 'file2.js' 'file3.js'
+                    -->
 
-            <java jar="${rhino.jar}" fork="true" failonerror="true">
-                <arg file="${jslintconsole.js}" />
-                <arg value="${jslintsrc.js}" />
-                <arg line="'${jsfileargs}'" />
-            </java>
-
+                    <java jar="${rhino.jar}" fork="true" failonerror="${jslint.failonerror}">
+                        <arg file="${jslintconsole.js}" />
+                        <arg value="${jslintsrc.js}" />
+                        <arg line="'${jsfileargs}'" />
+                    </java>
+                </else>
+            </if>
         </sequential>
     </macrodef>
 
