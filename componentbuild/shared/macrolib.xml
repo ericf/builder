@@ -159,7 +159,7 @@
                        java -r js.jar jslintconsole.js 'file1.js' 'file2.js' 'file3.js'
                     -->
 
-                    <java jar="${rhino.jar}" fork="true" failonerror="${jslint.failonerror}">
+                    <java classname="org.mozilla.javascript.tools.shell.Main" classpath="${rhino.jar}" failonerror="${jslint.failonerror}">
                         <arg file="${jslintconsole.js}" />
                         <arg value="${jslintsrc.js}" />
                         <arg line="'${jsfileargs}'" />
@@ -220,7 +220,7 @@
                 <available file="@{dir}/${@{module}@{lang}_fullname}.pres" />
                 <then>
                     <mkdir dir="${component.langbuilddir}" />
-                    <java jar="${rhino.jar}" fork="true" failonerror="true">
+                    <java classname="org.mozilla.javascript.tools.shell.Main" classpath="${rhino.jar}" failonerror="true">
                         <jvmarg value="-Dfile.encoding=utf-8" />
                         <arg file="${yrb2jsonconsole.js}" />
                         <arg file="${yrb2jsonsrc.js}" />
