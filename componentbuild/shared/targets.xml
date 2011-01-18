@@ -50,6 +50,7 @@
                 <!-- Check if it's installed first. -->
                 <exec resultproperty="node.status" executable="${node.exec}" failonerror="false" failifexecutionfails="false" searchpath="true" resolveexecutable="true">
                     <arg value="-v"/>
+                    <arg value="${node.port}"/>
                 </exec>
                 <if>
                     <equals arg1="${node.status}" arg2="0"/>
