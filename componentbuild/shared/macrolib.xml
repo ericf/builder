@@ -182,7 +182,7 @@
         <attribute name="classname" />
         <attribute name="file" />
         <sequential>
-            <loadfile srcfile="${builddir}/files/versioncode.txt" property="@{module}-@{classname}-version" >
+            <loadfile srcfile="${builddir}/files/versioncode.txt" property="@{module}-@{classname}-version" encoding="utf-8">
                 <filterchain>
                     <replacetokens>
                         <token key="MODULE" value="@{module}"/>
@@ -273,7 +273,7 @@
                     <property name="@{module}-details" value=",@{details}" />
                 </else>
             </if>
-            <loadfile srcfile="@{file}" property="@{module}-@{file}-code" />
+            <loadfile srcfile="@{file}" property="@{module}-@{file}-code" encoding="utf-8" />
             <echo level="info">Wrapping @{file} in YUI.add module</echo>
             <copy file="${builddir}/files/moduletemplate.txt" tofile="@{file}" overwrite="true">
                 <filterset>
@@ -301,7 +301,7 @@
                     <property name="@{module}-details" value=",@{details}" />
                 </else>
             </if>
-            <loadfile srcfile="@{file}" property="@{module}-@{file}-code" />
+            <loadfile srcfile="@{file}" property="@{module}-@{file}-code" encoding="utf-8" />
             <echo level="info">Adding Rollup @{file} using YUI.add</echo>
             <copy file="${builddir}/files/rolluptemplate.txt" tofile="@{file}" overwrite="true">
                 <filterset>
@@ -324,7 +324,7 @@
 
         	<for list="${component.rollup.lang}" param="lang" trim="true">
                 <sequential>
-                    <loadfile srcfile="@{dir}/@{module}_@{lang}.js" property="@{module}-@{lang}-code" />
+                    <loadfile srcfile="@{dir}/@{module}_@{lang}.js" property="@{module}-@{lang}-code" encoding="utf-8" />
 
                     <var name="lang.use" value="{use:[" />
 
@@ -353,7 +353,7 @@
         		</sequential>
         	</for>
 
-            <loadfile srcfile="@{dir}/@{module}.js" property="@{module}--code" />
+            <loadfile srcfile="@{dir}/@{module}.js" property="@{module}--code" encoding="utf-8" />
 
             <var name="lang.use" value="{use:[" />
             <for list="${component.lang.use}" param="submod" trim="true">                   
