@@ -22,8 +22,6 @@
                 <echo level="info">Rollup of rollup detected; setting rollup.sub properties.</echo>
                 <subant target="${component.rollup.target}" inheritall="false" >
                     <filelist dir="${buildfile.dir}" files="${component.rollup.modules.buildfiles}" />
-                    <property name="global.build.base" value="${global.build.base}" />
-		            <property name="global.build.component" value="${global.build.component}" />
                     <property name="rollup.sub" value="true" />
                     <property name="rollup.sub.builddir" value="${component.builddir}" />
                     <property name="rollup.sub.component" value="${component}" />
@@ -33,8 +31,6 @@
             <else>
                 <subant target="${component.rollup.target}" inheritall="false" >
                     <filelist dir="${buildfile.dir}" files="${component.rollup.modules.buildfiles}" />
-                    <property name="global.build.base" value="${global.build.base}" />
-            		<property name="global.build.component" value="${global.build.component}" />
                     <property name="rollup" value="true" />
                     <property name="rollup.builddir" value="${component.builddir}" />
                     <property name="rollup.component" value="${component}" />
@@ -80,5 +76,30 @@
     		    <addlangrollup module="${component.module}" dir="${component.builddir}/lang/" />
             </then>
     	</if>
+    </target>
+
+    <target name="tests">
+        <subant target="tests" inheritall="false" >
+            <filelist dir="${buildfile.dir}" files="${component.rollup.modules.buildfiles}" />
+            <property name="rollup" value="true" />
+            <property name="rollup.component" value="${tests.component}" />
+        </subant>
+
+        <arrayliteral from="tests.rollup.modules" to="tests.details.use" key="use"/>
+        <propertyregex property="tests.rollup.module.files"
+                       override="true"
+                       input="${tests.rollup.modules}"
+                       casesensitive="false"
+                       regexp="([^\,\s]+)"
+                       replace="\1.js"
+                        />
+
+        <concat destfile="${tests.builddir}/${tests.component}.js" append="true" fixlastline="true">
+            <filelist dir="${tests.builddir}" files="${tests.rollup.module.files}"/>
+        </concat>
+
+        <addrollup module="${tests.component}" file="${tests.builddir}/${tests.component}.js" details="{${tests.details.use}}" />
+
+        <echo level="info">Rollup test module ${tests.component} created</echo>
     </target>
 </project>
